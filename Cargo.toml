@@ -1,7 +1,7 @@
 [package]
 name = "present"
 version = "0.1.0"
-authors = ["Julian Harttung <Julian.Harttung@tu-dresden.de>"]
+authors = ["Julian Harttung <julian.harttung@web.de>"]
 
 [dependencies]
 lazy_static = "0.1.*"
