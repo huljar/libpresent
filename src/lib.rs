@@ -5,4 +5,5 @@ mod block;
 mod keys;
 mod sbox;
 mod pbox;
-mod errors;
+
+pub use self::keys::{Key, Key80Bit, Key128Bit};

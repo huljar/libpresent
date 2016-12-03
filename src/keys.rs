@@ -6,7 +6,7 @@ pub trait Key {
 }
 
 pub struct Key80Bit {
-    value: [u8; 10],
+    pub value: [u8; 10],
 }
 
 impl Key80Bit {
@@ -42,7 +42,7 @@ impl Key for Key80Bit {
 
             // Apply S-Box to leftmost 4 bits
             let sbox_result = S_BOX.apply(key_register[0] >> 4);
-            key_register[0] = (key_register[0] << 4) >> 4;
+            key_register[0] = key_register[0] % 16;
             key_register[0] += sbox_result << 4;
 
             // XOR bits 19..14 with the round counter
@@ -62,7 +62,7 @@ impl Key for Key80Bit {
 }
 
 pub struct Key128Bit {
-    value: [u8; 16],
+    pub value: [u8; 16],
 }
 
 impl Key128Bit {
@@ -88,13 +88,12 @@ mod tests {
 
     #[test]
     fn test_round_key_generation_80bit() {
-        // Create a key with the following binary representation:
-        // 00001010 11000000 10100110 11100111 01100011
-        // 00100110 10111100 01111110 10000010 10000000
-        let key = Key80Bit::new([10, 192, 166, 231, 99, 38, 188, 126, 130, 128]);
+        // Create a key with the following hex representation:
+        // 0xAC0A6E76326BC7E8280
+        let key = Key80Bit::new([0xA, 0xC0, 0xA6, 0xE7, 0x63, 0x26, 0xBC, 0x7E, 0x82, 0x80]);
         let round_keys = key.generate_round_keys();
-        assert_eq!(round_keys[0].value, 774802648638864510u64);
-        assert_eq!(round_keys[1].value, 8092970008203553892u64);
-        assert_eq!(round_keys[2].value, 4247437650306990746u64);
+        assert_eq!(round_keys[0].value, 0xAC0A6E76326BC7E_u64);
+        assert_eq!(round_keys[1].value, 0x7050015814DCEC64_u64);
+        assert_eq!(round_keys[2].value, 0x3AF1EE0A002B029A_u64);
     }
 }
