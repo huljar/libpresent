@@ -41,7 +41,7 @@ impl Key for Key80Bit {
             }
 
             // Apply S-Box to leftmost 4 bits
-            let sbox_result = S_BOX.apply(key_register[0] >> 4);
+            let sbox_result = S_BOX.apply_enc(key_register[0] >> 4);
             key_register[0] = key_register[0] % 16;
             key_register[0] += sbox_result << 4;
 
