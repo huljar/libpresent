@@ -6,4 +6,5 @@ mod keys;
 mod sbox;
 mod pbox;
 
+pub use self::block::Block;
 pub use self::keys::{Key, Key80Bit, Key128Bit};
