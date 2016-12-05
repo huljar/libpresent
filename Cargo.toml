@@ -5,3 +5,4 @@ authors = ["Julian Harttung <julian.harttung@web.de>"]
 
 [dependencies]
 lazy_static = "0.1.*"
+rand = "0.3"

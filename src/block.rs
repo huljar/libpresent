@@ -9,6 +9,26 @@ pub struct Block {
 }
 
 impl Block {
+    pub fn new(state: u64) -> Self {
+        Block { state: state }
+    }
+
+    pub fn from_bytes(bytes: &[u8; 8]) -> Self {
+        let mut state = 0u64;
+        for (i, byte) in bytes.iter().rev().enumerate() {
+            state += (*byte as u64) << (i * 8);
+        }
+        Block { state: state }
+    }
+
+    pub fn to_bytes(&self) -> [u8; 8] {
+        let mut ret = [0u8; 8];
+        for (i, byte) in ret.iter_mut().rev().enumerate() {
+            *byte = (self.state >> (i * 8)) as u8;
+        }
+        ret
+    }
+
     fn add_round_key(&mut self, round_key: &RoundKey) {
         self.state ^= round_key.value;
     }
@@ -83,10 +103,28 @@ impl<'a> BitXorAssign<&'a RoundKey> for Block {
     }
 }
 
+impl<'a> BitXorAssign<&'a Block> for Block {
+    fn bitxor_assign(&mut self, rhs: &Block) {
+        self.state ^= rhs.state;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use keys::Key80Bit;
+
+    #[test]
+    fn test_block_init_from_bytes() {
+        let block = Block::from_bytes(&[0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF]);
+        assert_eq!(block.get_state(), 0x0123456789ABCDEF_u64);
+    }
+
+    #[test]
+    fn test_block_to_bytes() {
+        let block = Block { state: 0x0123456789ABCDEF_u64 };
+        assert_eq!(block.to_bytes(), [0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF]);
+    }
 
     #[test]
     fn test_correct_sbox_application() {
