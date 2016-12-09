@@ -14,3 +14,16 @@ pub fn random_iv() -> Block {
 
     Block::new(rng.gen())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[should_panic]
+    fn test_that_ivs_are_actually_random() {
+        let a = random_iv();
+        let b = random_iv();
+        assert_eq!(a.get_state(), b.get_state());
+    }
+}
