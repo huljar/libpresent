@@ -54,17 +54,11 @@ impl SBox {
     }
 
     pub fn apply_enc(&self, input: u8) -> u8 {
-        match self.s_map_enc.get(&input) {
-            Some(&output) => output,
-            None => panic!("Logic error! Invalid S-Box input! (enc)"),
-        }
+        *self.s_map_enc.get(&input).expect("Logic error! Invalid S-Box input! (enc)")
     }
 
     pub fn apply_dec(&self, input: u8) -> u8 {
-        match self.s_map_dec.get(&input) {
-            Some(&output) => output,
-            None => panic!("Logic error! Invalid S-Box input! (dec)"),
-        }
+        *self.s_map_dec.get(&input).expect("Logic error! Invalid S-Box input! (dec)")
     }
 }
 
