@@ -1,21 +1,38 @@
 use sbox::S_BOX;
 
+/// The `Key` trait.
+///
+/// Any struct implementing this trait can be used as a key for
+/// encryption and decryption within this crate.
 pub trait Key {
     // PRESENT consists of 31 rounds plus a special 32nd round
+    /// Generate 32 round keys that will be used for the 32 rounds
+    /// of the PRESENT algorithm.
     fn generate_round_keys(&self) -> [RoundKey; 32];
 }
 
+/// An 80-bit key.
+///
+/// The [paper](https://link.springer.com/chapter/10.1007%2F978-3-540-74735-2_31)
+/// introduces two key lengths: 80-bit and 128-bit. This struct represents
+/// an 80-bit key and implements the appropriate key schedule.
 pub struct Key80Bit {
+    /// The value of the key as a byte array.
     pub value: [u8; 10],
 }
 
 impl Key80Bit {
+    /// Constructs a new 80-bit key from the given bytes.
     pub fn new(value: [u8; 10]) -> Self {
-        Key80Bit { value: value}
+        Key80Bit { value: value }
     }
 }
 
 impl Key for Key80Bit {
+    /// The key schedule for 80-bit keys.
+    ///
+    /// This function generates 32 round keys that are derived
+    /// from the value of this key.
     fn generate_round_keys(&self) -> [RoundKey; 32] {
         // The round keys are generated as follows:
         // 1. Take the 64 leftmost bits of the key register
@@ -61,17 +78,28 @@ impl Key for Key80Bit {
     }
 }
 
+/// A 128-bit key.
+///
+/// The [paper](https://link.springer.com/chapter/10.1007%2F978-3-540-74735-2_31)
+/// introduces two key lengths: 80-bit and 128-bit. This struct represents
+/// a 128-bit key and implements the appropriate key schedule.
 pub struct Key128Bit {
+    /// The value of the key as a byte array.
     pub value: [u8; 16],
 }
 
 impl Key128Bit {
+    /// Constructs a new 128-bit key from the given bytes.
     pub fn new(value: [u8; 16]) -> Self {
         Key128Bit { value: value}
     }
 }
 
 impl Key for Key128Bit {
+    /// The key schedule for 128-bit keys.
+    ///
+    /// This function generates 32 round keys that are derived
+    /// from the value of this key.
     fn generate_round_keys(&self) -> [RoundKey; 32] {
         // The round keys are generated as follows:
         // 1. Take the 64 leftmost bits of the key register
@@ -117,9 +145,11 @@ impl Key for Key128Bit {
     }
 }
 
+/// A single round key. Its length is always 64 bit (same as the block size).
 #[derive(Copy, Clone)]
 pub struct RoundKey {
-    pub value: u64, // Round keys have the same size as the block size
+    /// The value of the round key.
+    pub value: u64,
 }
 
 #[cfg(test)]
