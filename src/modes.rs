@@ -1,11 +1,19 @@
 use rand::{Rng, OsRng};
 use block::Block;
 
+/// Enum representing block cipher modes of operation.
 pub enum OpMode {
+    /// Electronic Code Book (unsafe). Does not require an initialization vector.
     ECB,
+    /// Cipher Block Chaining. Requires an initialization vector.
     CBC,
 }
 
+/// Generate a random initialization vector using a random
+/// number generator provided by the operating system.
+/// For details on how randomness is achieved, see
+/// [the `OsRng` docs](https://doc.rust-lang.org/rand/rand/os/struct.OsRng.html)
+/// from the `rand` crate.
 pub fn random_iv() -> Block {
     let mut rng = match OsRng::new() {
         Ok(g) => g,

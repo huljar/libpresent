@@ -15,6 +15,29 @@ pub use self::keys::{Key, Key80Bit, Key128Bit};
 pub use self::modes::OpMode;
 pub use self::errors::DecryptError;
 
+/// Encrypt a string.
+///
+/// Encrypt a string with a specific key and operation mode.
+/// Because the ciphertext is not a valid UTF-8 string, it is
+/// instead returned as a byte vector. In addition, if the
+/// specified operation mode needs an initialization vector,
+/// one will be randomly generated and returned with the
+/// ciphertext.
+///
+/// # Arguments
+///
+/// * `text` - String slice containing the plaintext to encrypt.
+/// * `key` - The key to be used for encryption.
+/// * `mode` - Block cipher mode of operation that will be used.
+///
+/// # Examples
+///
+/// ```
+/// use present::{encrypt_str, Key80Bit, OpMode};
+/// let key = Key80Bit::new([0xFF; 10]);
+/// let (ciphertext, iv) = encrypt_str("Hello, world!", &key, &OpMode::CBC);
+/// assert!(iv.is_some());
+/// ```
 pub fn encrypt_str<K: Key>(text: &str, key: &K, mode: &OpMode) -> (Vec<u8>, Option<Block>) {
     // Check how much padding needs to be appended to the string
     let pad_len = match text.len() % 8 {
@@ -91,6 +114,38 @@ pub fn encrypt_str<K: Key>(text: &str, key: &K, mode: &OpMode) -> (Vec<u8>, Opti
     }
 }
 
+/// Decrypt a string.
+///
+/// Decrypt a string (given as a byte slice) using a specific key
+/// and operation mode. If decryption was successful, the decrypted
+/// string is returned, otherwise an error.
+///
+/// # Arguments
+///
+/// * `ciphertext` - Encrypted string as a byte slice. Usually the result of a call to
+///   `encrypt_str`.
+/// * `key` - The key to be used for decryption (must be the same that was used for encryption).
+/// * `mode` - Block cipher mode of operation that will be used (must be the same that was used
+///   for encryption).
+/// * `init_vec` - If the operation mode uses an initialization vector, pass `Some` with the IV
+///   that was returned by `encrypt_str`. Otherwise, pass `None`.
+///
+/// # Errors
+///
+/// Returns `Err` with a `DecryptError` if an error occurred during decryption. See the
+/// [documentation of `DecryptError`](enum.DecryptError.html) for details.
+///
+/// # Examples
+///
+/// ```
+/// use present::{encrypt_str, decrypt_str, Key80Bit, OpMode};
+/// let key = Key80Bit::new([0xFF; 10]);
+/// let op_mode = OpMode::CBC;
+/// let (ciphertext, iv) = encrypt_str("Hello, world!", &key, &op_mode);
+///
+/// let decrypt_result = decrypt_str(&ciphertext, &key, &op_mode, iv);
+/// assert_eq!(decrypt_result.unwrap(), "Hello, world!");
+/// ```
 pub fn decrypt_str<K: Key>(ciphertext: &[u8], key: &K, mode: &OpMode, init_vec: Option<Block>) -> Result<String, DecryptError> {
     // Check that ciphertext is at least one block
     if ciphertext.len() < 8 {
